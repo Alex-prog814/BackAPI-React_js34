@@ -14,6 +14,9 @@ import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { updateToken, logout } from '../helpers/functions';
+import { useDispatch, useSelector } from 'react-redux';
+import { cleanUserState } from '../store/userSlice';
 
 const darkTheme = createTheme({
   palette: {
@@ -56,6 +59,13 @@ function ResponsiveAppBar() {
   };
 
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    updateToken();
+  }, []);
+
+  const { user } = useSelector(state => state.user);
+  const dispatch = useDispatch();
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -151,7 +161,7 @@ function ResponsiveAppBar() {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt={user ? user.username : '-'} src="..." />
                 </IconButton>
               </Tooltip>
               <Menu
@@ -175,7 +185,10 @@ function ResponsiveAppBar() {
                     <Typography textAlign="center">{setting.name}</Typography>
                   </MenuItem>
                 ))}
-                <MenuItem key="logout">
+                <MenuItem key="logout" onClick={() => {
+                  logout();
+                  dispatch(cleanUserState());
+                }}>
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>
